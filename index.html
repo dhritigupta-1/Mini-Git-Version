@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitFlow | Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #8b5cf6;
+            --accent-hover: #7c3aed;
+            --text: #f8fafc;
+            --text-dim: #94a3b8;
+            --terminal-bg: #000000;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Sidebar */
+        .sidebar {
+            width: 350px;
+            background: var(--card-bg);
+            border-right: 1px solid #334155;
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 10px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #a78bfa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 20px;
+        }
+
+        h2 {
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 15px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input {
+            background: #0f172a;
+            border: 1px solid #475569;
+            padding: 10px;
+            border-radius: 6px;
+            color: white;
+            font-family: inherit;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        button {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+        }
+
+        button:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        button.secondary {
+            background: #475569;
+        }
+
+        button.secondary:hover {
+            background: #64748b;
+        }
+
+        /* Main Console Area */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            background: var(--bg);
+        }
+
+        .terminal-header {
+            background: #334155;
+            padding: 10px 20px;
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dots { display: flex; gap: 6px; }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .red { background: #ff5f56; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #27c93f; }
+
+        #output {
+            flex: 1;
+            background: var(--terminal-bg);
+            color: #d1d5db;
+            padding: 20px;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #334155;
+            white-space: pre-wrap;
+        }
+
+        .cmd-line { color: var(--success); }
+        .time-stamp { color: var(--text-dim); font-size: 12px; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="logo"><span>GitFlow</span> <small style="font-size: 10px; color: var(--text-dim)">v1.0</small></div>
+    
+    <!-- File management -->
+    <div class="section">
+        <h2>Workspace</h2>
+        <div class="input-group">
+            <input id="fname" placeholder="Filename (e.g. main.cpp)">
+            <input id="fcontent" placeholder="Content...">
+            <button onclick="addFile()">Stage File</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Version Control</h2>
+        <div class="input-group">
+            <input id="msg" placeholder="Commit message...">
+            <button onclick="commit()">Create Commit</button>
+            <div class="btn-grid">
+                <button class="secondary" onclick="undo()">Undo</button>
+                <button class="secondary" onclick="redo()">Redo</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Branches</h2>
+        <div class="input-group">
+            <input id="bname" placeholder="Branch name...">
+            <div class="btn-grid">
+                <button onclick="createBranch()">Create</button>
+                <button onclick="switchBranch()">Switch</button>
+            </div>
+            <button class="secondary" onclick="mergeBranch()">Merge into Current</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Time Travel</h2>
+        <div class="input-group">
+            <input id="cid" placeholder="Commit ID">
+            <button style="background: var(--error)" onclick="revert()">Revert to ID</button>
+        </div>
+    </div>
+
+    <!--  Visualization -->
+    <div class="section" style="border:none">
+        <h2>Visualization</h2>
+        <div class="btn-grid">
+            <button class="secondary" onclick="history()">Log</button>
+            <button class="secondary" onclick="files()">Files</button>
+            <button class="secondary" onclick="branches()">Branches</button>
+        </div>
+    </div>
+</div>
+
+ <!-- Main Console Area -->
+<div class="main-content">
+    <div class="terminal-header">
+        <div class="dots">
+            <div class="dot red"></div>
+            <div class="dot yellow"></div>
+            <div class="dot green"></div>
+        </div>
+        <div style="font-size: 12px; color: var(--text-dim); font-weight: bold;">bash — git-simulator</div>
+        <button onclick="clearOutput()" style="padding: 2px 10px; font-size: 10px; background: transparent; border: 1px solid #475569;">Clear</button>
+    </div>
+    <pre id="output">System initialized. Ready for commands...</pre>
+</div>
+
+<script>
+    const out = document.getElementById("output");
+
+    function clearOutput() {
+        out.innerText = "Console cleared.";
+    }
+
+    // Function to display output in the terminal area
+    function show(text, isCommand = false) {
+        const time = new Date().toLocaleTimeString();
+        const prefix = isCommand ? `<span class="cmd-line">$</span> ` : "";
+        const entry = `\n<span class="time-stamp">[${time}]</span> ${prefix}${text}`;
+        out.innerHTML += entry;
+        out.scrollTop = out.scrollHeight;
+    }
+
+    // main function to call server endpoints
+    async function call(endpoint, params = "") {
+        const url = `/${endpoint}${params}`;
+        show(endpoint + params.replace('?', ' '), true);
+        try {
+            const response = await fetch(url);
+            const data = await response.text();
+            show(data);
+        } catch (err) {
+            show("Error: " + err);
+        }
+    }
+
+    function addFile() { call('add', `?name=${fname.value}&content=${fcontent.value}`); }
+    function commit() { call('commit', `?msg=${msg.value}`); }
+    function undo() { call('undo'); }
+    function redo() { call('redo'); }
+    function createBranch() { call('createBranch', `?name=${bname.value}`); }
+    function switchBranch() { call('switchBranch', `?name=${bname.value}`); }
+    function mergeBranch() { call('merge', `?name=${bname.value}`); }
+    function revert() { call('revert', `?id=${cid.value}`); }
+    function history() { call('history'); }
+    function files() { call('files'); }
+    function branches() { call('branches'); }
+</script>
+
+</body>
+</html>
