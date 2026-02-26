@@ -192,9 +192,3 @@ After building:
 * The `vcpkg/` directory is intentionally ignored in this repository.
 * Dependencies can be restored automatically using the steps above.
 * This keeps the repository lightweight and reproducible.
-
----
-
-## 📜 License
-
-This project is for educational purposes.
