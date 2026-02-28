@@ -1,13 +1,12 @@
 FROM ubuntu:22.04
 
-# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /app
 
 COPY . .
 
-# Install compiler + minimal Boost needed by Crow
+# Install compiler + required Boost libraries for Crow
 RUN apt-get update && \
     apt-get install -y g++ make \
     libboost-system-dev \
@@ -15,8 +14,8 @@ RUN apt-get update && \
     libboost-thread-dev && \
     rm -rf /var/lib/apt/lists/*
 
-# Compile all C++ files
-RUN g++ -std=c++17 *.cpp -o app -pthread
+# Compile ONLY the Crow server + logic files
+RUN g++ -std=c++17 server.cpp Repository.cpp -o app -pthread
 
 EXPOSE 8080
 
