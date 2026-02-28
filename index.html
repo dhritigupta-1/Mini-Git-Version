@@ -242,9 +242,9 @@
 
     // Function to display output in the terminal area
     function show(text, isCommand = false) {
-        const time = new Date().toLocaleTimeString();
-        const prefix = isCommand ? `<span class="cmd-line">$</span> ` : "";
-        const entry = `\n<span class="time-stamp">[${time}]</span> ${prefix}${text}`;
+        const time = new Date().toLocaleTimeString(); // timestamp for each entry
+        const prefix = isCommand ? `<span class="cmd-line">$</span> ` : ""; // prefix commands with $ for clarity
+        const entry = `\n<span class="time-stamp">[${time}]</span> ${prefix}${text}`; // format entry with timestamp and optional command prefix
         out.innerHTML += entry;
         out.scrollTop = out.scrollHeight;
     }

@@ -18,12 +18,13 @@ Repository::Repository() {
 void Repository::addFile(string name, string content){
 
     workingDir[name] = content; // stage file in working directory
+    // staged files are not yet in commit until commit() is called, so we just add to workingDir and print message
 
-    cout<< "File added: "<< name << endl;
+    cout<< "File added: "<< name << endl; 
 }
 
 // Function 2: Commit
-// Most Important operation
+// Most Important operation as it creates a new commit with snapshot of files and updates history
 
 void Repository::commit(string message){
 
@@ -37,6 +38,7 @@ void Repository::commit(string message){
 
     for(auto &file : workingDir){
 
+        // Simple hash function for file content but changed to store content directly for simplicity
         // unsigned int h = 0;
 
         // for(char c : file.second)
@@ -47,10 +49,10 @@ void Repository::commit(string message){
     }
 
     // Create new commit
-    Commit* newCommit = new Commit(++commitCounter, message, snapshot);
-    allCommits[newCommit->id] = newCommit;
+    Commit* newCommit = new Commit(++commitCounter, message, snapshot); 
+    allCommits[newCommit->id] = newCommit; // add to all commits map for easy lookup
 
-    undoStack.push(newCommit);
+    undoStack.push(newCommit); // push new commit to undo stack for potential future undos
 
     if(!root){
 
@@ -59,8 +61,8 @@ void Repository::commit(string message){
     }
     else{
 
-        newCommit->parent1 = head;
-        head = newCommit;
+        newCommit->parent1 = head; // set primary parent to current HEAD for linear history
+        head = newCommit; // move HEAD to new commit
     }
 
     cout<< "Commit #" << newCommit->id
@@ -92,8 +94,8 @@ string Repository::showHistory() {
 
     if(!head) return "No commits\n";
 
-    string r;
-    Commit* t = head;
+    string r; //result string to accumulate history
+    Commit* t = head; 
 
     while(t) {
         r += "Commit #" + to_string(t->id)
@@ -112,9 +114,9 @@ void Repository::undo() {
     }
 
     // Move current commit to redo stack
-    Commit* current = undoStack.top();
-    undoStack.pop();
-    redoStack.push(current);
+    Commit* current = undoStack.top(); // get current commit to undo
+    undoStack.pop(); // move back to previous commit
+    redoStack.push(current); // move current commit to redo stack for potential future redo
 
     head = current->parent1;
 
@@ -132,11 +134,11 @@ void Repository::redo() {
         return;
     }
 
-    Commit* commit = redoStack.top();
-    redoStack.pop();
+    Commit* commit = redoStack.top(); // get commit to redo
+    redoStack.pop(); // move back to undo stack for potential future undos
 
-    undoStack.push(commit);
-    head = commit;
+    undoStack.push(commit); // move back to undo stack
+    head = commit; // update HEAD to redo commit
 
     if(currentBranch)
         currentBranch->head = head;

@@ -2,6 +2,7 @@
 #include "Repository.h"
 #include <fstream>
 #include <sstream>
+#include <cstdlib>
 
 Repository repo;
 
@@ -84,7 +85,12 @@ int main() {
     CROW_ROUTE(app,"/branches")
     ([](){ return repo.showBranches(); });
 
-    app.bindaddr("127.0.0.1").port(18080).run();
+    int port = 8080;
+
+    if(const char* env_p = std::getenv("PORT"))
+        port = std::stoi(env_p);
+
+    app.bindaddr("0.0.0.0").port(port).multithreaded().run();
 }
 
    
